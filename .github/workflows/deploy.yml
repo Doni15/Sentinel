@@ -1,0 +1,26 @@
+name: Deploy Sentinel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH (forced command on server)
+        env:
+          KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          install -m700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # arg "deploy" sa ignoruje — server má forced command (ci_deploy.sh)
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes root@"$HOST" deploy
