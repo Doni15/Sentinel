@@ -1,0 +1,45 @@
+[Unit]
+Description=Sentinel - rodinny AI agent (Telegram bot)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# beh pod neprivilegovanym systemovym pouzivatelom (nie root)
+User=sentinel
+Group=sentinel
+WorkingDirectory=/opt/sentinel
+ExecStart=/opt/sentinel/.venv/bin/python /opt/sentinel/main.py
+Environment=PYTHONUNBUFFERED=1
+Restart=always
+RestartSec=10
+TimeoutStartSec=180
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=sentinel
+
+# --- sandbox / hardening ---
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+PrivateDevices=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+# zahod vsetky Linux capabilities
+CapabilityBoundingSet=
+AmbientCapabilities=
+# jedine zapisovatelne miesto: data adresar aplikacie
+ReadWritePaths=/opt/sentinel/data
+
+[Install]
+WantedBy=multi-user.target

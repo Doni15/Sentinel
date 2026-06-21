@@ -1,0 +1,4 @@
+# Dev/test závislosti (neinštalujú sa na produkcii)
+-r requirements.txt
+pytest>=8
+pytest-asyncio>=0.23

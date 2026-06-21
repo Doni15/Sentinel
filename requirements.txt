@@ -1,0 +1,9 @@
+# Presne pripnuté verzie — reprodukovateľný deploy, žiadne prekvapivé upgrady.
+# Follow-up (hashované zamknutie): pip-compile --generate-hashes requirements.in
+pdfplumber==0.11.10
+python-telegram-bot[job-queue]==22.8
+python-dotenv==1.2.2
+tzdata==2026.2
+
+# Bezpečnostná záplata: setuptools <70 má známe zraniteľnosti (audit: 59.6.0 → ≥78.1.1)
+setuptools>=78.1.1

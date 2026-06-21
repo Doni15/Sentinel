@@ -1,0 +1,15 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# tajomstvá a runtime dáta (NIKDY do gitu)
+.env
+data/*.db
+data/pdfs/archive/
+*.part
+
+# lokálne nastavenia nástrojov
+.claude/
+.DS_Store

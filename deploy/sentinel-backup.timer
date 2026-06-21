@@ -1,0 +1,10 @@
+[Unit]
+Description=Denná záloha Sentinel SQLite DB
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
