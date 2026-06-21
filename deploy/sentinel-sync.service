@@ -1,0 +1,8 @@
+[Unit]
+Description=Sentinel auto-sync z GitHubu (pull + redeploy pri zmene)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/sentinel/deploy/autosync.sh
