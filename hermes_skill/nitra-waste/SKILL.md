@@ -1,6 +1,6 @@
 ---
 name: nitra-waste
-description: Rozvrh zvozu odpadu v Nitre (plast, papier, bio, komunál) z oficiálnych harmonogramov NKS. Použi VŽDY keď sa používateľ pýta kedy idú smeti / kedy je zvoz / kedy vyvezú plast, papier, bio alebo komunál v Nitre, čo má zajtra vyložiť, alebo si chce skontrolovať termíny zvozu pre svoju adresu.
+description: Rozvrh zvozu odpadu v Nitre (plast, papier, bio, komunál) z oficiálnych harmonogramov NKS. Použi VŽDY keď sa používateľ pýta kedy idú smeti / kedy je zvoz / kedy vyvezú plast, papier, bio alebo komunál v Nitre, čo má zajtra vyložiť, alebo si chce skontrolovať termíny zvozu pre svoju adresu. Použi aj keď sa chce niekto PRIHLÁSIŤ na denné pripomienky zvozu (povie adresu a chce dostávať upozornenia), alebo keď SPRÁVCA pošle príkaz /allow, /deny, /approve alebo /reject.
 ---
 
 # Zvoz odpadu Nitra
@@ -30,6 +30,35 @@ Otázky typu: „kedy idú smeti", „kedy je zvoz", „kedy vyvezú plast/papie
    **Ak je v jeden deň viac nádob, jasne povedz, že treba pristaviť N kontajnerov**
    (napr. „V pondelok 29.6. pristav 2 kontajnery: 🔵 papier + 🟤 bio").
 5. Ak `found: false`, povedz to a popýtaj presnejšiu mestskú časť alebo ulicu.
+
+## Prihlásenie na denné pripomienky
+Keď používateľ chce **dostávať pripomienky** zvozu („chcem upozornenia", „prihlás
+ma", „nech mi pošleš deň pred zvozom"):
+1. Zisti adresu (mestská časť, ulica, číslo) — rovnako ako vyššie.
+2. Spusti:
+   ```
+   python3 scripts/subscribe.py --name "<meno>" --cast "<časť>" \
+       --ulica "<ulica>" --cislo "<číslo>" --chat-id <TELEGRAM_ID_ODOSIELATEĽA>
+   ```
+   - `--chat-id` je **Telegram ID toho, kto píše** (z kontextu správy), NIE admina.
+3. Skript vráti JSON `{ok, message}`. **Prerozprávaj `message`** — nezapisuj nič
+   sám, skript len odoslal žiadosť správcovi na schválenie.
+4. Pripomienky NEvytváraj, neprogramuj ani nenavrhuj cron/skripty — o doručovanie
+   sa stará nasadený `notify.py` (deň pred zvozom). Tvojou úlohou je len spustiť
+   `subscribe.py`.
+
+## Príkazy správcu (admin)
+Ak správu poslal **správca** a začína na `/allow`, `/deny`, `/approve` alebo
+`/reject` s číslom, spusti:
+```
+python3 scripts/admin.py <allow|deny|approve|reject> <číslo> \
+    --requester-chat-id <TELEGRAM_ID_ODOSIELATEĽA>
+```
+- `/allow <ID>` / `/deny <ID>` — `<ID>` je Telegram ID z upozornenia „Pokus o kontakt".
+- `/approve <č>` / `/reject <č>` — `<č>` je číslo žiadosti z „Žiadosť o pripomienky".
+- `--requester-chat-id` je vždy Telegram ID odosielateľa (skript si sám overí, či
+  je to správca; ak nie, odmietne).
+- Vždy iba spusti skript a **prerozprávaj jeho `message`**. Nič nedomýšľaj.
 
 ## Mestské časti Nitry
 Staré mesto, Zobor, Chrenová, Klokočina, Janíkovce, Dolný Čermáň, Horný Čermáň,
