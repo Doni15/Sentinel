@@ -49,16 +49,15 @@ ma", „nech mi pošleš deň pred zvozom"):
 
 ## Príkazy správcu (admin)
 **POZOR:** príkazy chodia BEZ lomky (správy s `/` gateway zachytí a agentovi ich
-nepošle). Ak správa od **správcu** znie ako `allow <číslo>`, `deny <číslo>`,
-`approve <číslo>` alebo `reject <číslo>` (aj keby tam omylom bola lomka), spusti:
+nepošle). Ak správa znie ako `allow <číslo>`, `deny <číslo>`, `approve <číslo>`
+alebo `reject <číslo>` (aj keby tam omylom bola lomka), spusti rovno:
 ```
-python3 scripts/admin.py <allow|deny|approve|reject> <číslo> \
-    --requester-chat-id <TELEGRAM_ID_ODOSIELATEĽA>
+python3 scripts/admin.py <allow|deny|approve|reject> <číslo>
 ```
 - `allow <ID>` / `deny <ID>` — `<ID>` je Telegram ID z upozornenia „Pokus o kontakt".
 - `approve <č>` / `reject <č>` — `<č>` je číslo žiadosti z „Žiadosť o pripomienky".
-- `--requester-chat-id` je vždy Telegram ID odosielateľa (skript si sám overí, či
-  je to správca; ak nie, odmietne).
+- **NIKDY sa nepýtaj používateľa na jeho Telegram ID** — netreba ho. Ochranu
+  rieši allowlist (k botovi sa dostane len povolená rodina).
 - Vždy iba spusti skript a **prerozprávaj jeho `message`**. Nič nedomýšľaj.
 
 ## Mestské časti Nitry

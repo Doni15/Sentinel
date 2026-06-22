@@ -168,11 +168,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("command", choices=["allow", "deny", "approve", "reject"])
     ap.add_argument("id", help="telegram_id (allow/deny) alebo pending_id (approve/reject)")
-    ap.add_argument("--requester-chat-id", required=True,
-                    help="chat_id toho, kto príkaz poslal (admin guard)")
+    ap.add_argument("--requester-chat-id", default="",
+                    help="chat_id odosielateľa (voliteľné; reálna ochrana je "
+                         "allowlist — k botovi sa dostane len rodina)")
     args = ap.parse_args()
 
-    if str(args.requester_chat_id).strip() != str(ADMIN_CHAT_ID):
+    # Ak je requester dodaný a NIE je to admin, odmietni. Ak nie je dodaný
+    # (Hermes ho agentovi neposkytuje), spoľahni sa na allowlist.
+    req = str(args.requester_chat_id).strip()
+    if req and req != str(ADMIN_CHAT_ID):
         _result("Tento príkaz môže použiť iba správca.", ok=False)
 
     token = _env_get("TELEGRAM_BOT_TOKEN")
