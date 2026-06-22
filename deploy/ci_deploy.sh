@@ -46,7 +46,8 @@ EOF
         systemctl daemon-reload
         systemctl enable --now waste-access-watch.service 2>/dev/null || true
         systemctl restart waste-access-watch.service 2>/dev/null || true
-        echo "access-watch installed/restarted"
+        sleep 1
+        echo "access-watch: $(systemctl is-active waste-access-watch) (installed/restarted)"
     fi
 fi
 
