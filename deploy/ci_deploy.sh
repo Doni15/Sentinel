@@ -18,7 +18,39 @@ if [ -d "$SKILL_SRC" ] && id hermes >/dev/null 2>&1; then
     cp -a "$SKILL_SRC" "$SKILL_DST"
     chown -R hermes:hermes "$SKILL_DST"
     chmod +x "$SKILL_DST/scripts/query.py" 2>/dev/null || true
-    # reštartni Hermes gateway, nech načíta zmenu skillu
+
+    # --- Tvrdé pravidlá do SOUL.md (idempotentne, medzi značkami) ---
+    SOUL=/home/hermes/.hermes/SOUL.md
+    if [ -f "$SOUL" ]; then
+        tmp=$(mktemp)
+        awk '
+          /# >>> sentinel-waste-rules >>>/{skip=1}
+          skip==0{ lines[++n]=$0 }
+          /# <<< sentinel-waste-rules <<</{skip=0}
+          END{ while(n>0 && lines[n] ~ /^[[:space:]]*$/) n--; for(i=1;i<=n;i++) print lines[i] }
+        ' "$SOUL" > "$tmp"
+        cat >> "$tmp" <<'EOF'
+
+# >>> sentinel-waste-rules >>>
+## Sentinel — zvoz odpadu (NEPORUŠITEĽNÉ pravidlá)
+- Denné pripomienky zvozu UŽ FUNGUJÚ automaticky — nasadený systém posiela
+  pripomienku vždy deň pred zvozom. NIKDY nenavrhuj ich vytvárať, NEPROGRAMUJ
+  skripty ani cron a NESĽUBUJ „nastavím/vytvorím ti pripomienku".
+- NIKDY nežiadaj od používateľa Telegram bot token ani žiadne tajomstvá a NIKDY
+  ich nevypisuj. Token je na serveri v prostredí; je tajný a ty ho nepotrebuješ.
+- Keď sa niekto chce PRIHLÁSIŤ na pripomienky, použi skill nitra-waste
+  (subscribe.py). Príkazy správcu allow/deny/approve/reject rieš cez admin.py.
+- Na otázky o termínoch zvozu vždy použi skill nitra-waste (query.py).
+# <<< sentinel-waste-rules <<<
+EOF
+        mv "$tmp" "$SOUL"
+        chown hermes:hermes "$SOUL"
+        echo "SOUL rules synced -> $SOUL"
+    else
+        echo "POZOR: SOUL.md nenájdený na $SOUL — pravidlá nedoplnené"
+    fi
+
+    # reštartni Hermes gateway, nech načíta zmenu skillu + SOUL
     runuser -l hermes -c 'export XDG_RUNTIME_DIR=/run/user/1000; systemctl --user restart hermes-gateway' 2>/dev/null || true
     echo "skill synced -> $SKILL_DST"
 
