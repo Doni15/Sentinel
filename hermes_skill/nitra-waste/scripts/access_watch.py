@@ -70,8 +70,9 @@ def handle(token: str, uid: str, name: str, platform: str) -> None:
            f"Meno: {name or '?'}\n"
            f"Telegram ID: {uid}\n"
            f"Platforma: {platform}\n\n"
-           f"Pustiť k botovi:  /allow {uid}\n"
-           f"Ignorovať:        /deny {uid}")
+           f"Napíš mi (BEZ lomky):\n"
+           f"Pustiť k botovi:  allow {uid}\n"
+           f"Ignorovať:        deny {uid}")
     if send_telegram(token, ADMIN_CHAT_ID, msg):
         state[uid] = today
         if len(state) > 200:

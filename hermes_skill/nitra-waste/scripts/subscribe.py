@@ -135,8 +135,9 @@ def main() -> None:
         f"Adresa: {addr}\n"
         f"Telegram ID: {chat_id}\n"
         f"Najbližší zvoz: {nearest}\n\n"
-        f"Schváliť:  /approve {new_id}\n"
-        f"Zamietnuť: /reject {new_id}")
+        f"Napíš mi (BEZ lomky):\n"
+        f"Schváliť:  approve {new_id}\n"
+        f"Zamietnuť: reject {new_id}")
     send_telegram(token, ADMIN_CHAT_ID, admin_msg)
 
     _result(True,

@@ -48,14 +48,15 @@ ma", „nech mi pošleš deň pred zvozom"):
    `subscribe.py`.
 
 ## Príkazy správcu (admin)
-Ak správu poslal **správca** a začína na `/allow`, `/deny`, `/approve` alebo
-`/reject` s číslom, spusti:
+**POZOR:** príkazy chodia BEZ lomky (správy s `/` gateway zachytí a agentovi ich
+nepošle). Ak správa od **správcu** znie ako `allow <číslo>`, `deny <číslo>`,
+`approve <číslo>` alebo `reject <číslo>` (aj keby tam omylom bola lomka), spusti:
 ```
 python3 scripts/admin.py <allow|deny|approve|reject> <číslo> \
     --requester-chat-id <TELEGRAM_ID_ODOSIELATEĽA>
 ```
-- `/allow <ID>` / `/deny <ID>` — `<ID>` je Telegram ID z upozornenia „Pokus o kontakt".
-- `/approve <č>` / `/reject <č>` — `<č>` je číslo žiadosti z „Žiadosť o pripomienky".
+- `allow <ID>` / `deny <ID>` — `<ID>` je Telegram ID z upozornenia „Pokus o kontakt".
+- `approve <č>` / `reject <č>` — `<č>` je číslo žiadosti z „Žiadosť o pripomienky".
 - `--requester-chat-id` je vždy Telegram ID odosielateľa (skript si sám overí, či
   je to správca; ak nie, odmietne).
 - Vždy iba spusti skript a **prerozprávaj jeho `message`**. Nič nedomýšľaj.
