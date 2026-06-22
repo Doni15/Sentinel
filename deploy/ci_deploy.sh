@@ -95,4 +95,8 @@ echo "===== DIAG: gateway log (posledných 120 r., filter) ====="
 journalctl _UID=1000 --no-pager -n 120 2>&1 | grep -iE 'unauthorized|denied|allow|/start|start|new chat|message from|telegram' | tail -40 || true
 echo "===== DIAG: allowlist v .env ====="
 grep -E 'TELEGRAM_ALLOWED_USERS|GATEWAY_ALLOW_ALL' /home/hermes/.hermes/.env 2>/dev/null | sed 's/=.*/=<skryté>/' || true
+echo "===== DIAG: access state file ====="
+cat /home/hermes/.hermes/waste_access_state.json 2>&1 || echo "(state file neexistuje)"
+echo "===== DIAG: watcher send výsledky ====="
+journalctl -u waste-access-watch --no-pager 2>&1 | grep -iE 'alert sent|send error|Error|Traceback' | tail -20 || true
 echo "===== DIAG END ====="
