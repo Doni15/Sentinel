@@ -31,6 +31,8 @@ ADMIN_CHAT_ID = os.environ.get("WASTE_ADMIN_CHAT_ID", "677758312")
 STATE_FILE = os.environ.get("WASTE_ACCESS_STATE",
                             "/home/hermes/.hermes/waste_access_state.json")
 HERMES_UID = os.environ.get("HERMES_UID", "1000")
+# Anti-spam: rovnaké ID upozorní najviac raz za toľkoto sekúnd (default 10 min).
+DEDUP_SECONDS = int(os.environ.get("WASTE_ACCESS_DEDUP_SECONDS", "600"))
 
 DENIED_RE = re.compile(r"Unauthorized user:\s*(\d+)\s*\(([^)]*)\)\s*on\s*(\w+)")
 
@@ -63,9 +65,14 @@ def send_telegram(token: str, chat_id, text: str) -> bool:
 
 def handle(token: str, uid: str, name: str, platform: str) -> None:
     state = _load(STATE_FILE, {})
-    today = datetime.date.today().isoformat()
-    if state.get(uid) == today:
-        return  # dnes už upozornené na toto ID
+    now = datetime.datetime.now()
+    last = state.get(uid)
+    if last:
+        try:
+            if (now - datetime.datetime.fromisoformat(last)).total_seconds() < DEDUP_SECONDS:
+                return  # nedávno už upozornené na toto ID
+        except ValueError:
+            pass  # starý formát (dátum) → preposli znova
     msg = (f"🔔 Pokus o kontakt s botom\n\n"
            f"Meno: {name or '?'}\n"
            f"Telegram ID: {uid}\n"
@@ -74,7 +81,7 @@ def handle(token: str, uid: str, name: str, platform: str) -> None:
            f"Pustiť k botovi:  allow {uid}\n"
            f"Ignorovať:        deny {uid}")
     if send_telegram(token, ADMIN_CHAT_ID, msg):
-        state[uid] = today
+        state[uid] = now.isoformat(timespec="seconds")
         if len(state) > 200:
             state = dict(sorted(state.items(), key=lambda kv: kv[1])[-200:])
         try:
