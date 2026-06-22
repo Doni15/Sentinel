@@ -21,6 +21,33 @@ if [ -d "$SKILL_SRC" ] && id hermes >/dev/null 2>&1; then
     # reštartni Hermes gateway, nech načíta zmenu skillu
     runuser -l hermes -c 'export XDG_RUNTIME_DIR=/run/user/1000; systemctl --user restart hermes-gateway' 2>/dev/null || true
     echo "skill synced -> $SKILL_DST"
+
+    # --- Strážca prístupu: upozorní admina na Telegram pri pokuse o kontakt ---
+    WATCH="$SKILL_DST/scripts/access_watch.py"
+    if [ -f "$WATCH" ]; then
+        HUID=$(id -u hermes)
+        cat > /etc/systemd/system/waste-access-watch.service <<EOF
+[Unit]
+Description=Sentinel — strážca prístupu (upozorní admina na pokus o kontakt s botom)
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 $WATCH
+Environment=HERMES_ENV=/home/hermes/.hermes/.env
+Environment=WASTE_ADMIN_CHAT_ID=677758312
+Environment=HERMES_UID=$HUID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+        systemctl daemon-reload
+        systemctl enable --now waste-access-watch.service 2>/dev/null || true
+        systemctl restart waste-access-watch.service 2>/dev/null || true
+        echo "access-watch installed/restarted"
+    fi
 fi
 
 # starý bot je disabled; reštartni len ak ešte beží
